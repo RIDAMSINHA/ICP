@@ -1,0 +1,142 @@
+.registration-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 170px);
+  padding: 20px;
+}
+
+.registration-container {
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.registration-container h1 {
+  font-size: 2rem;
+  color: var(--secondary-dark);
+  margin-bottom: 15px;
+}
+
+.registration-description {
+  color: var(--secondary-color);
+  margin-bottom: 30px;
+}
+
+.registration-error {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--error);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.registration-success {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--success);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.auth-section, .register-section {
+  margin-bottom: 30px;
+}
+
+.auth-section p, .register-section p {
+  margin-bottom: 15px;
+  color: var(--text-dark);
+}
+
+.auth-button, .register-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  padding: 15px 30px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+}
+
+.auth-button:hover, .register-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.auth-button:disabled, .register-button:disabled {
+  background-color: var(--dark-gray);
+  cursor: not-allowed;
+}
+
+.principal-display {
+  background-color: var(--light-gray);
+  padding: 15px;
+  border-radius: 4px;
+  word-break: break-all;
+  font-family: monospace;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.registration-help {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+}
+
+.registration-help a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.registration-help a:hover {
+  text-decoration: underline;
+}
+
+.registration-steps {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: var(--light-gray);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.registration-steps h3 {
+  font-size: 1.1rem;
+  color: var(--secondary-dark);
+  margin-bottom: 15px;
+}
+
+.registration-steps ol {
+  padding-left: 20px;
+}
+
+.registration-steps li {
+  margin-bottom: 10px;
+  color: var(--text-dark);
+}
+
+@media (max-width: 600px) {
+  .registration-container {
+    padding: 30px 20px;
+  }
+  
+  .registration-container h1 {
+    font-size: 1.8rem;
+  }
+} 

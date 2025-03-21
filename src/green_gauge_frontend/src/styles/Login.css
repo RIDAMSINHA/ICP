@@ -1,0 +1,145 @@
+.login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 170px);
+  padding: 20px;
+}
+
+.login-container {
+  background-color: var(--white);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+.login-title {
+  font-size: 2rem;
+  color: var(--secondary-dark);
+  margin-bottom: 15px;
+}
+
+.login-description {
+  color: var(--secondary-color);
+  margin-bottom: 30px;
+}
+
+.login-error {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--error);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.ii-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  border-radius: 4px;
+  padding: 15px 30px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  width: 100%;
+}
+
+.ii-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.ii-button:disabled {
+  background-color: var(--dark-gray);
+  cursor: not-allowed;
+}
+
+.ii-logo {
+  height: 24px;
+  margin-right: 10px;
+}
+
+.login-help {
+  margin-top: 30px;
+  font-size: 0.9rem;
+  color: var(--secondary-color);
+}
+
+.login-help a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.login-help a:hover {
+  text-decoration: underline;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  margin: 30px 0;
+  color: var(--dark-gray);
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--mid-gray);
+}
+
+.login-divider span {
+  padding: 0 10px;
+  font-size: 0.9rem;
+}
+
+.whats-ii {
+  margin-top: 30px;
+  padding: 20px;
+  background-color: var(--light-gray);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.whats-ii h3 {
+  font-size: 1.1rem;
+  color: var(--secondary-dark);
+  margin-bottom: 10px;
+}
+
+.whats-ii p {
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+}
+
+.whats-ii a {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+}
+
+.whats-ii a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 600px) {
+  .login-container {
+    padding: 30px 20px;
+  }
+  
+  .login-title {
+    font-size: 1.8rem;
+  }
+} 

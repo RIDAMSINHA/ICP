@@ -1,0 +1,167 @@
+.trade-list {
+  width: 100%;
+}
+
+.trade-list-loading {
+  text-align: center;
+  padding: 20px;
+  color: var(--secondary-color);
+}
+
+.trade-list-error {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--error);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.trade-list-empty {
+  text-align: center;
+  padding: 30px;
+  color: var(--secondary-color);
+  background-color: var(--light-gray);
+  border-radius: 8px;
+}
+
+.trade-success {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--success);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.trade-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.trade-table th, 
+.trade-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--mid-gray);
+}
+
+.trade-table th {
+  background-color: var(--light-gray);
+  font-weight: 600;
+  color: var(--secondary-dark);
+}
+
+.trade-table tr:last-child td {
+  border-bottom: none;
+}
+
+.trade-table tr:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+.trade-table tr.own-offer {
+  background-color: rgba(46, 125, 50, 0.05);
+}
+
+.owner-label {
+  display: inline-block;
+  padding: 5px 10px;
+  background-color: var(--mid-gray);
+  color: var(--secondary-dark);
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.buy-button {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.buy-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.buy-button:disabled {
+  background-color: var(--dark-gray);
+  cursor: not-allowed;
+}
+
+.buy-form {
+  padding: 10px 0;
+}
+
+.buy-error {
+  color: var(--error);
+  font-size: 0.8rem;
+  margin-bottom: 10px;
+}
+
+.token-warning {
+  color: var(--warning);
+  font-size: 0.8rem;
+  margin-top: 5px;
+}
+
+.confirm-button, 
+.cancel-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-right: 5px;
+}
+
+.confirm-button {
+  background-color: var(--success);
+  color: var(--white);
+}
+
+.confirm-button:hover {
+  background-color: #388e3c;
+}
+
+.cancel-button {
+  background-color: var(--error);
+  color: var(--white);
+}
+
+.cancel-button:hover {
+  background-color: #d32f2f;
+}
+
+.confirm-button:disabled,
+.cancel-button:disabled {
+  background-color: var(--dark-gray);
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .trade-table th, 
+  .trade-table td {
+    padding: 10px;
+    font-size: 0.9rem;
+  }
+  
+  .confirm-button, 
+  .cancel-button {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .trade-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+} 

@@ -1,0 +1,138 @@
+.carbon-market-page {
+  padding: 20px;
+}
+
+.carbon-market-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.carbon-market-header h1 {
+  font-size: 2rem;
+  color: var(--secondary-dark);
+  margin-bottom: 10px;
+}
+
+.carbon-market-header p {
+  color: var(--secondary-color);
+  font-size: 1.1rem;
+}
+
+.carbon-market-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+}
+
+.carbon-market-error {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--error);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.carbon-market-tabs {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.tab-button {
+  padding: 12px 30px;
+  background-color: var(--white);
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--secondary-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  color: var(--primary-color);
+}
+
+.tab-button.active {
+  color: var(--primary-color);
+  border-bottom-color: var(--primary-color);
+  font-weight: 600;
+}
+
+.carbon-market-content {
+  background-color: var(--white);
+  border-radius: 8px;
+  padding: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  margin-bottom: 30px;
+}
+
+.carbon-market-content h2 {
+  font-size: 1.4rem;
+  color: var(--secondary-dark);
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--mid-gray);
+}
+
+.user-carbon-info {
+  background-color: var(--light-gray);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.user-carbon-info p {
+  font-size: 1rem;
+  color: var(--text-dark);
+}
+
+.trade-list-container, .trade-form-container {
+  width: 100%;
+}
+
+.carbon-market-info {
+  background-color: var(--light-gray);
+  border-radius: 8px;
+  padding: 25px;
+}
+
+.carbon-market-info h3 {
+  font-size: 1.2rem;
+  color: var(--secondary-dark);
+  margin-bottom: 15px;
+}
+
+.carbon-market-info ol {
+  padding-left: 20px;
+}
+
+.carbon-market-info li {
+  margin-bottom: 10px;
+  color: var(--text-dark);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .carbon-market-tabs {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .tab-button {
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid var(--mid-gray);
+    border-radius: 4px;
+  }
+  
+  .tab-button.active {
+    border-color: var(--primary-color);
+    background-color: rgba(46, 125, 50, 0.1);
+  }
+} 

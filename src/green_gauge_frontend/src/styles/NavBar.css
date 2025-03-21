@@ -1,0 +1,132 @@
+.navbar {
+  background-color: var(--white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+}
+
+.navbar-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.navbar-logo a {
+  text-decoration: none;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+}
+
+.logo-text {
+  margin-left: 10px;
+}
+
+.navbar-toggle {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.toggle-icon {
+  width: 25px;
+  height: 3px;
+  background-color: var(--dark-gray);
+  margin: 3px 0;
+  transition: all 0.3s ease;
+}
+
+.navbar-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-item {
+  margin-left: 20px;
+}
+
+.navbar-item a {
+  text-decoration: none;
+  color: var(--dark-gray);
+  font-weight: 500;
+  padding: 8px 0;
+  transition: color 0.2s ease;
+  display: block;
+}
+
+.navbar-item a:hover,
+.navbar-item a.active {
+  color: var(--primary-color);
+}
+
+.navbar-button {
+  background-color: var(--primary-color);
+  color: var(--white) !important;
+  padding: 8px 16px !important;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.navbar-button:hover {
+  background-color: var(--primary-dark);
+  color: var(--white) !important;
+}
+
+.logout-button {
+  background: none;
+  border: none;
+  color: var(--dark-gray);
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: color 0.2s ease;
+}
+
+.logout-button:hover {
+  color: var(--primary-color);
+}
+
+@media (max-width: 768px) {
+  .navbar-toggle {
+    display: flex;
+  }
+  
+  .navbar-menu {
+    position: absolute;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background-color: var(--white);
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transform: translateY(-200%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+  }
+  
+  .navbar-menu.active {
+    transform: translateY(0);
+  }
+  
+  .navbar-item {
+    margin: 0 0 15px 0;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .navbar-item:last-child {
+    margin-bottom: 0;
+  }
+} 

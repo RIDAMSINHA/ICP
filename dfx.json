@@ -1,0 +1,38 @@
+{
+  "canisters": {
+    "green_gauge_backend": {
+      "candid": "src/green_gauge_backend/green_gauge_backend.did",
+      "package": "green_gauge_backend",
+      "type": "rust"
+    },
+    "green_gauge_frontend": {
+      "dependencies": [
+        "green_gauge_backend"
+      ],
+      "source": [
+        "src/green_gauge_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "green_gauge_frontend"
+    },
+    "internet_identity": {
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "frontend": {},
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

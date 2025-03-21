@@ -1,0 +1,21 @@
+[package]
+name = "green_gauge_backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+ic-cdk = "0.12.2"
+ic-cdk-macros = "0.8"
+candid = "0.10"
+serde = { version = "1.0", features = ["derive"] }
+serde_cbor = "0.11"
+serde_json = "1.0"
+ic-stable-structures = "0.6"
+candid-extractor = "0.1.6"
+
+

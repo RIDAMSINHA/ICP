@@ -1,0 +1,92 @@
+.token-reward {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  background-color: var(--white);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.token-reward h2 {
+  font-size: 1.4rem;
+  color: var(--secondary-dark);
+  margin-bottom: 20px;
+}
+
+.token-reward-description {
+  margin-bottom: 20px;
+  color: var(--dark-gray);
+  line-height: 1.6;
+}
+
+.form-error {
+  background-color: rgba(244, 67, 54, 0.1);
+  color: var(--error);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.form-success {
+  background-color: rgba(76, 175, 80, 0.1);
+  color: var(--success);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+}
+
+.token-form-group {
+  margin-bottom: 20px;
+}
+
+.token-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: var(--secondary-dark);
+}
+
+.token-form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--mid-gray);
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: border 0.2s ease;
+}
+
+.token-form-group input:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+.token-form-group input:disabled {
+  background-color: var(--light-gray);
+  cursor: not-allowed;
+}
+
+.reward-button {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: block;
+  width: 100%;
+}
+
+.reward-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.reward-button:disabled {
+  background-color: var(--dark-gray);
+  cursor: not-allowed;
+} 
