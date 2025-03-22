@@ -48,7 +48,7 @@ export const MOCK_DATA = {
       id: 1,
       user_id: "2vxsx-fae",
       message: "Your carbon emission is approaching your monthly limit",
-      timestamp: Date.now() - 2 * 60 * 60 * 1000, // 2 hours ago
+      timestamp: Date.now() - 45 * 60 * 1000, // 45 minutes ago
       severity: "medium",
       status: "new"
     },
@@ -56,24 +56,48 @@ export const MOCK_DATA = {
       id: 2,
       user_id: "2vxsx-fae",
       message: "New carbon trading opportunity available",
-      timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000, // 1 day ago
+      timestamp: Date.now() - 3 * 60 * 60 * 1000, // 3 hours ago
       severity: "low",
       status: "new"
     },
     {
       id: 3,
       user_id: "2vxsx-fae",
-      message: "System maintenance scheduled for tomorrow",
-      timestamp: Date.now() - 3 * 24 * 60 * 60 * 1000, // 3 days ago
+      message: "System maintenance scheduled for tonight at 10PM",
+      timestamp: Date.now() - 6 * 60 * 60 * 1000, // 6 hours ago
       severity: "low",
       status: "read"
     },
     {
       id: 4,
       user_id: "2vxsx-fae",
-      message: "Your last login was over a week ago – please update your security settings",
-      timestamp: Date.now() - 8 * 24 * 60 * 60 * 1000, // 8 days ago
+      message: "Security update required - please update your password",
+      timestamp: Date.now() - 18 * 60 * 60 * 1000, // 18 hours ago
       severity: "high",
+      status: "new"
+    },
+    {
+      id: 5,
+      user_id: "2vxsx-fae",
+      message: "Congratulations! You reduced emissions by 15% this week",
+      timestamp: Date.now() - 1 * 24 * 60 * 60 * 1000, // 1 day ago
+      severity: "low",
+      status: "new"
+    },
+    {
+      id: 6,
+      user_id: "2vxsx-fae",
+      message: "Price alert: Carbon credit prices have increased by 5%",
+      timestamp: Date.now() - 30 * 60 * 1000, // 30 minutes ago
+      severity: "medium",
+      status: "new"
+    },
+    {
+      id: 7,
+      user_id: "2vxsx-fae",
+      message: "Your efficiency metrics report is ready to view",
+      timestamp: Date.now() - 10 * 60 * 1000, // 10 minutes ago
+      severity: "low",
       status: "new"
     }
   ],
@@ -174,7 +198,7 @@ export const MOCK_DATA = {
       price_per_unit: 6,
       project_name: "Wind Energy Project",
       transaction_type: "purchase",
-      transaction_time: Date.now() - 20 * 24 * 60 * 60 * 1000,
+      transaction_time: Date.now() - 2 * 24 * 60 * 60 * 1000, // 2 days ago
       totalPrice: 200 * 6
     },
     {
@@ -186,7 +210,7 @@ export const MOCK_DATA = {
       price_per_unit: 7,
       project_name: "Green Building Retrofit",
       transaction_type: "sale",
-      transaction_time: Date.now() - 15 * 24 * 60 * 60 * 1000,
+      transaction_time: Date.now() - 36 * 60 * 60 * 1000, // 36 hours ago
       totalPrice: 300 * 7
     },
     {
@@ -198,7 +222,7 @@ export const MOCK_DATA = {
       price_per_unit: 5,
       project_name: "Methane Capture",
       transaction_type: "purchase",
-      transaction_time: Date.now() - 7 * 24 * 60 * 60 * 1000,
+      transaction_time: Date.now() - 12 * 60 * 60 * 1000, // 12 hours ago
       totalPrice: 500 * 5
     },
     {
@@ -210,8 +234,20 @@ export const MOCK_DATA = {
       price_per_unit: 9,
       project_name: "Green Building Retrofit",
       transaction_type: "sale",
-      transaction_time: Date.now() - 3 * 24 * 60 * 60 * 1000,
+      transaction_time: Date.now() - 4 * 60 * 60 * 1000, // 4 hours ago
       totalPrice: 250 * 9
+    },
+    {
+      id: 5,
+      buyer: "2vxsx-fae",
+      seller: "pqr234-rst",
+      credit_id: 7,
+      amount: 150,
+      price_per_unit: 8,
+      project_name: "Solar Farm Initiative",
+      transaction_type: "purchase",
+      transaction_time: Date.now() - 30 * 60 * 1000, // 30 minutes ago
+      totalPrice: 150 * 8
     }
   ],
   
