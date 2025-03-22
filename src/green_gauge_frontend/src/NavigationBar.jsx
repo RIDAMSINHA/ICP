@@ -39,6 +39,8 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
                     <li>|</li>
                     <li><Link to="/dashboard" className={isActive('/dashboard') ? 'underline' : ''}>Dashboard</Link></li>
                     <li>|</li>
+                    <li><Link to="/carbon" className={isActive('/carbon') ? 'underline' : ''}>Carbon Trading</Link></li>
+                    <li>|</li>
                     <li><Link to="/profile" className={isActive('/profile') ? 'underline' : ''}>Profile</Link></li>
                     <li>|</li>
                     <li><Link to="/alerts" className={isActive('/alerts') ? 'underline' : ''}>Alerts</Link></li>

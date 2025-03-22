@@ -14,5 +14,9 @@
   "type": "module",
   "workspaces": [
     "src/green_gauge_frontend"
-  ]
+  ],
+  "dependencies": {
+    "react-icons": "^5.5.0",
+    "react-toastify": "^11.0.5"
+  }
 }

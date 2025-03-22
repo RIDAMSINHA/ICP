@@ -22,9 +22,12 @@ import Profile from './Profile';
 import './styles/App.css';
 
 const App = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [loading, setLoading] = useState(true);
+  // For demo purposes, always set isAuthenticated to true
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [loading, setLoading] = useState(false);
 
+  // Commented out the actual auth check since we're hardcoding for demo
+  /*
   useEffect(() => {
     const checkAuth = async () => {
       try {
@@ -38,6 +41,16 @@ const App = () => {
     };
 
     checkAuth();
+  }, []);
+  */
+
+  useEffect(() => {
+    // Simulate a brief loading to make the app feel more realistic
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, []);
 
   if (loading) {

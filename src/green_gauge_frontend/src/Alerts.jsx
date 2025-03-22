@@ -1,208 +1,268 @@
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { getAllData, resolveAction, getDataAboveLimit } from './backendActor';
+import React, { useState, useEffect } from 'react';
+import { getAlerts, filterAlerts, updateAlertStatus, removeAlert } from './services/api';
+import { formatDate, formatRelativeTime } from './utils/dateUtils';
+import { useNavigate } from 'react-router-dom';
 
-const Alerts = ({ isAuthenticated, setIsAuthenticated }) => {
+const Alerts = () => {
   const [alerts, setAlerts] = useState([]);
   const [filteredAlerts, setFilteredAlerts] = useState([]);
-  const [status, setStatus] = useState('Normal');
-  const [showDialog, setShowDialog] = useState(false);
-  const [currentAlert, setCurrentAlert] = useState(null);
-  const [resolutionDetails, setResolutionDetails] = useState('');
-
-  const threshold = 500;
-
-  useEffect(() => {
-    // Scroll to the top when the component mounts
-    window.scrollTo(0, 0);
-  }, []);
-
-  const fetchAlerts = async () => {
-    try {
-      // Use our backendActor instead of axios
-      const response = await getDataAboveLimit(threshold);
-      console.log("Data above limit:", response);
-
-      if (Array.isArray(response)) {
-        const sortedAlerts = response.sort((a, b) => new Date(b.date) - new Date(a.date));
-        setAlerts(sortedAlerts);
-        setFilteredAlerts(sortedAlerts);
-      } else {
-        console.error('Invalid response format:', response);
-      }
-    } catch (error) {
-      console.error('Error fetching alerts:', error);
-    }
-  };
-
-  const showPendingAlerts = () => {
-    setFilteredAlerts(alerts.filter(alert => !alert.resolution || alert.resolution === 'N/A'));
-  };
-
-  const showResolvedAlerts = () => {
-    setFilteredAlerts(alerts.filter(alert => alert.resolution && alert.resolution !== 'N/A' && alert.resolution !== 'Already Efficient.'));
-  };
-
-  const showAllAlerts = () => {
-    setFilteredAlerts(alerts);
-  };
-
-  const fetchRealTimeData = async () => {
-    try {
-      // Use our backendActor instead of axios
-      const allData = await getAllData();
-      console.log("All data:", allData);
-
-      if (Array.isArray(allData) && allData.length > 0) {
-        // Sort the data in descending order by date
-        allData.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        // Get the latest data
-        const latestData = allData[0];
-        console.log("Latest Data:", latestData);
-
-        if (latestData && latestData.energy_consumption) {
-          updateRealTimeData(latestData.energy_consumption);
-        } else {
-          console.error('Failed to fetch valid data:', latestData);
-        }
-      }
-    } catch (error) {
-      console.error('Error fetching real-time data:', error);
-    }
-  };
-
-  const updateRealTimeData = (value) => {
-    const realTimeElement = document.getElementById('realTimeData');
-    if (realTimeElement) {
-      realTimeElement.innerHTML = `Electricity Consumption <br> Observed: ${value} kWh <br> Normal Consumption: < 500 kWh <br> Normal Efficiency Score: < 1 kg/KWh`;
-      updateStatus(value >= threshold ? 'Alert' : 'Normal', value);
-    }
-  };
-
-  const updateStatus = (status, value) => {
-    setStatus(status);
-    const statusElement = document.getElementById('status');
-    if (statusElement) {
-      statusElement.innerText = `Status: ${status}`;
-    }
-  };
-
-  const handleResolveAlert = async () => {
-    if (currentAlert) {
-      try {
-        // Use our backendActor instead of axios
-        const response = await resolveAction(currentAlert.id, resolutionDetails);
-        console.log("Resolution response:", response);
-
-        setShowDialog(false);
-        setResolutionDetails('');
-        fetchAlerts(); // Re-fetch alerts to update the UI after resolving
-      } catch (error) {
-        console.error('Error resolving alert:', error);
-      }
-    }
-  };
-
-  const displayAlerts = () => {
-    return filteredAlerts
-      .filter(alert => !alert.resolution || alert.resolution !== 'Already Efficient.')
-      .map(alert => (
-        <div key={alert.id} className={!alert.resolution || alert.resolution === 'N/A' ? 'alert p-4 bg-red-100 border-l-4 border-l-red-600 rounded-lg shadow-lg mb-4' : 'resolved-alert p-4 bg-green-100 rounded-lg shadow-md border-l-4 border-l-green-600 mb-4'}>
-          <p className="font-semibold"><strong>Alert:</strong> {alert.alert}</p>
-          <p><strong>Efficiency Score:</strong> {alert.efficiency_score}</p>
-          <p><strong>Current Consumption:</strong> {alert.energy_consumption} kWh</p>
-          <p><strong>Status:</strong> {!alert.resolution || alert.resolution === 'N/A' ? 'Pending' : 'Resolved'}</p>
-          {(!alert.resolution || alert.resolution === 'N/A') && (
-            <button onClick={() => {
-              setCurrentAlert(alert);
-              setShowDialog(true);
-            }} className="bg-green-500 text-white px-4 py-2 mt-3 rounded hover:bg-green-600">
-              Mark as Resolved
-            </button>
-          )}
-        </div>
-      ));
-  };
+  const [activeFilter, setActiveFilter] = useState('all'); // all, new, read, resolved
+  const [loading, setLoading] = useState(true);
+  const [resolveModalOpen, setResolveModalOpen] = useState(false);
+  const [selectedAlert, setSelectedAlert] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchAlerts();
-    fetchRealTimeData();
-    const intervalId = setInterval(fetchRealTimeData, 60000);
-
-    return () => clearInterval(intervalId);
   }, []);
 
+  const fetchAlerts = async () => {
+    setLoading(true);
+    try {
+      const result = await getAlerts();
+      setAlerts(result);
+      applyFilter(activeFilter, result);
+    } catch (error) {
+      console.error("Error fetching alerts:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const applyFilter = (filter, alertsData = alerts) => {
+    setActiveFilter(filter);
+    
+    if (filter === 'all') {
+      setFilteredAlerts(alertsData);
+    } else {
+      filterAlertsFromBackend(filter);
+    }
+  };
+
+  const filterAlertsFromBackend = async (status) => {
+    try {
+      const filtered = await filterAlerts(status);
+      setFilteredAlerts(filtered);
+    } catch (error) {
+      console.error("Error filtering alerts:", error);
+    }
+  };
+
+  const handleResolveAlert = async (alertId) => {
+    try {
+      await updateAlertStatus(alertId, 'resolved');
+      
+      // Update local state
+      const updatedAlerts = alerts.map(alert => 
+        alert.id === alertId 
+          ? { ...alert, status: 'resolved' } 
+          : alert
+      );
+      
+      setAlerts(updatedAlerts);
+      applyFilter(activeFilter, updatedAlerts);
+      setResolveModalOpen(false);
+    } catch (error) {
+      console.error("Error resolving alert:", error);
+    }
+  };
+
+  const handleMarkAsRead = async (alertId) => {
+    try {
+      await updateAlertStatus(alertId, 'read');
+      
+      // Update local state
+      const updatedAlerts = alerts.map(alert => 
+        alert.id === alertId 
+          ? { ...alert, status: 'read' } 
+          : alert
+      );
+      
+      setAlerts(updatedAlerts);
+      applyFilter(activeFilter, updatedAlerts);
+    } catch (error) {
+      console.error("Error marking alert as read:", error);
+    }
+  };
+
+  const handleDeleteAlert = async (alertId) => {
+    try {
+      await removeAlert(alertId);
+      
+      // Update local state
+      const updatedAlerts = alerts.filter(alert => alert.id !== alertId);
+      setAlerts(updatedAlerts);
+      applyFilter(activeFilter, updatedAlerts);
+    } catch (error) {
+      console.error("Error deleting alert:", error);
+    }
+  };
+
+  const openResolveModal = (alert) => {
+    setSelectedAlert(alert);
+    setResolveModalOpen(true);
+  };
+
+  const getSeverityColor = (severity) => {
+    switch (severity) {
+      case 'high':
+        return 'text-red-600';
+      case 'medium':
+        return 'text-yellow-600';
+      default:
+        return 'text-blue-600';
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'new':
+        return <span className="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">New</span>;
+      case 'read':
+        return <span className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">Read</span>;
+      case 'resolved':
+        return <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Resolved</span>;
+      default:
+        return null;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500 mx-auto"></div>
+          <p className="mt-3 text-gray-700">Loading alerts...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-gray-100 min-h-screen">
-      {/* Font styles */}
-      <style jsx>{`
-        .alerts-container {
-          font-family: "Hanuman", serif;
-          font-weight: 400;
-          font-style: normal;
-        }
-      `}</style>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-semibold text-gray-700">Alerts Dashboard</h1>
+      <p className="text-gray-600 mb-6">Monitor and manage system alerts and notifications.</p>
 
-      <div className='alerts-container mt-20'>
-        <div className="p-6 bg-white shadow-lg fixed w-full z-10 flex justify-between items-center">
-          <h1 className="text-3xl font-semibold text-gray-700">Alerts Dashboard</h1>
-          <div className="flex space-x-4">
-            <button onClick={showPendingAlerts} className="bg-yellow-400 text-white px-4 py-2 rounded hover:bg-yellow-500">Pending</button>
-            <button onClick={showResolvedAlerts} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Resolved</button>
-            <button onClick={showAllAlerts} className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">All</button>
-          </div>
+      {/* Filter Tabs */}
+      <div className="flex border-b mb-6">
+        <button
+          className={`py-2 px-4 ${activeFilter === 'all' ? 'text-green-600 border-b-2 border-green-600 font-medium' : 'text-gray-500'}`}
+          onClick={() => applyFilter('all')}
+        >
+          All Alerts
+        </button>
+        <button
+          className={`py-2 px-4 ${activeFilter === 'new' ? 'text-green-600 border-b-2 border-green-600 font-medium' : 'text-gray-500'}`}
+          onClick={() => applyFilter('new')}
+        >
+          New
+        </button>
+        <button
+          className={`py-2 px-4 ${activeFilter === 'read' ? 'text-green-600 border-b-2 border-green-600 font-medium' : 'text-gray-500'}`}
+          onClick={() => applyFilter('read')}
+        >
+          Read
+        </button>
+        <button
+          className={`py-2 px-4 ${activeFilter === 'resolved' ? 'text-green-600 border-b-2 border-green-600 font-medium' : 'text-gray-500'}`}
+          onClick={() => applyFilter('resolved')}
+        >
+          Resolved
+        </button>
+      </div>
+
+      {/* Alerts List */}
+      {filteredAlerts.length === 0 ? (
+        <div className="bg-white rounded-lg shadow-md p-8 text-center">
+          <p className="text-gray-500">No alerts found matching your filter criteria.</p>
+          <button
+            className="mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            onClick={() => applyFilter('all')}
+          >
+            View All Alerts
+          </button>
         </div>
-
-        <div className="flex pt-32 px-10 space-x-6">
-          <div className="w-1/4 p-5 bg-white rounded-lg shadow-md sticky top-24 h-64">
-            <h2 className="text-xl font-semibold mb-4 text-gray-700">Real-time Data</h2>
-            <div id="realTimeData" className="space-y-3 text-gray-600">
-            </div>
-            <div id="status" className="mt-4 text-gray-800 font-semibold">
-              Status: {status}
-            </div>
-          </div>
-
-          <div className="w-2/4">
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Alerts</h2>
-            <div id="alertsSection" className="space-y-4">
-              {displayAlerts()}
-            </div>
-          </div>
-        </div>
-
-        {showDialog && (
-          <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
-              <h2 className="text-xl mb-4 font-semibold">Resolve Alert</h2>
-              <textarea
-                value={resolutionDetails}
-                onChange={(e) => setResolutionDetails(e.target.value)}
-                className="border p-3 w-full mb-4 rounded focus:outline-none focus:ring-2 focus:ring-green-500"
-                placeholder="Enter resolution details"
-              />
-              <div className="flex justify-end">
-                <button onClick={() => setShowDialog(false)} className="bg-gray-400 text-white px-4 py-2 rounded mr-2 hover:bg-gray-500">Cancel</button>
-                <button onClick={handleResolveAlert} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Resolve</button>
+      ) : (
+        <div className="space-y-4">
+          {filteredAlerts.map((alert) => (
+            <div 
+              key={alert.id} 
+              className={`p-4 rounded-lg shadow-md bg-white border-l-4 ${
+                alert.severity === 'high' 
+                  ? 'border-red-500' 
+                  : alert.severity === 'medium'
+                  ? 'border-yellow-500'
+                  : 'border-blue-500'
+              }`}
+            >
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="flex items-center mb-2">
+                    <h3 className="font-semibold text-lg mr-2">Alert</h3>
+                    {getStatusBadge(alert.status)}
+                  </div>
+                  <p className="text-gray-700 mb-2">{alert.message}</p>
+                  <div className="flex items-center text-sm text-gray-500">
+                    <span className={`font-medium ${getSeverityColor(alert.severity)} mr-2`}>
+                      {alert.severity.charAt(0).toUpperCase() + alert.severity.slice(1)} Severity
+                    </span>
+                    <span>• {formatRelativeTime(alert.timestamp / 1000000)}</span>
+                  </div>
+                </div>
+                <div className="flex space-x-2">
+                  {alert.status === 'new' && (
+                    <button
+                      className="text-blue-600 hover:text-blue-800"
+                      onClick={() => handleMarkAsRead(alert.id)}
+                    >
+                      Mark as Read
+                    </button>
+                  )}
+                  {alert.status !== 'resolved' && (
+                    <button
+                      className="text-green-600 hover:text-green-800"
+                      onClick={() => openResolveModal(alert)}
+                    >
+                      Resolve
+                    </button>
+                  )}
+                  <button
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => handleDeleteAlert(alert.id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             </div>
+          ))}
+        </div>
+      )}
+
+      {/* Resolve Modal */}
+      {resolveModalOpen && selectedAlert && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full shadow-lg">
+            <h2 className="text-xl font-semibold mb-4">Resolve Alert</h2>
+            <p className="mb-4">Are you sure you want to mark this alert as resolved?</p>
+            <p className="p-3 bg-gray-100 rounded mb-4">{selectedAlert.message}</p>
+            <div className="flex justify-end space-x-2">
+              <button
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+                onClick={() => setResolveModalOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                onClick={() => handleResolveAlert(selectedAlert.id)}
+              >
+                Resolve
+              </button>
+            </div>
           </div>
-        )}
-        <br /><br />
-        <footer className="bg-[#D5E7FF] text-gray-700 p-5 ">
-          <div className="container flex justify-between items-center">
-            <ul className="text-left mx-10 flex space-x-10 py-10">
-              <li><Link to="/about" className="hover:underline">About</Link></li>
-              <li><Link to="/contactus" className="hover:underline">Contact Us</Link></li>
-              <li><Link to="/privacypolicy" className="hover:underline">Privacy Policy</Link></li>
-              <li><Link to="/termsconditions" className="hover:underline">Terms & Conditions</Link></li>
-            </ul>
-            <p className="text-center text-gray-500 text-sm">&copy; 2024 Energy Credit & Carbon Offset Tracking. All rights reserved.</p>
-          </div>
-        </footer>
-      </div>
+        </div>
+      )}
     </div>
   );
 };

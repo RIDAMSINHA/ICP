@@ -12,6 +12,10 @@ import {
   login,
   logout
 } from './backendActor';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { getEmissionHistory, getTokenBalanceHistory, getEfficiencyMetrics, getLatestAlerts } from './services/api';
+import { formatDate } from './utils/dateUtils';
+import Tooltip from './components/Tooltip';
 
 const CarbonDashboard = () => {
   const navigate = useNavigate();
@@ -30,6 +34,13 @@ const CarbonDashboard = () => {
   const [sellPrice, setSellPrice] = useState('');
   const [buyTradeId, setBuyTradeId] = useState('');
   const [buyAmount, setBuyAmount] = useState('');
+
+  const [profile, setProfile] = useState(null);
+  const [emissionHistory, setEmissionHistory] = useState([]);
+  const [tokenHistory, setTokenHistory] = useState([]);
+  const [efficiencyMetrics, setEfficiencyMetrics] = useState([]);
+  const [alerts, setAlerts] = useState([]);
+  const [timeRange, setTimeRange] = useState('week'); // 'week', 'month', 'year'
 
   // Check authentication and fetch user data
   const checkAuthAndFetchData = async () => {
@@ -74,6 +85,69 @@ const CarbonDashboard = () => {
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
   }, []);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [timeRange]);
+
+  const fetchDashboardData = async () => {
+    setLoading(true);
+    try {
+      // Fetch user profile
+      const userProfile = await getUserProfile();
+      setProfile(userProfile);
+
+      // Calculate timestamp ranges based on selected time range
+      const now = Date.now() * 1000000; // Convert to nanoseconds
+      let fromTimestamp;
+
+      switch (timeRange) {
+        case 'week':
+          fromTimestamp = now - 7 * 24 * 60 * 60 * 1000000000;
+          break;
+        case 'month':
+          fromTimestamp = now - 30 * 24 * 60 * 60 * 1000000000;
+          break;
+        case 'year':
+          fromTimestamp = now - 365 * 24 * 60 * 60 * 1000000000;
+          break;
+        default:
+          fromTimestamp = now - 7 * 24 * 60 * 60 * 1000000000;
+      }
+
+      // Fetch emission history
+      const emissions = await getEmissionHistory(fromTimestamp, now);
+      const formattedEmissions = emissions.map(point => ({
+        date: formatDate(point.timestamp / 1000000), // Convert nanoseconds to milliseconds
+        amount: point.amount
+      }));
+      setEmissionHistory(formattedEmissions);
+
+      // Fetch token balance history
+      const tokens = await getTokenBalanceHistory(fromTimestamp, now);
+      const formattedTokens = tokens.map(point => ({
+        date: formatDate(point.timestamp / 1000000),
+        balance: point.balance
+      }));
+      setTokenHistory(formattedTokens);
+
+      // Fetch efficiency metrics
+      let days = 7;
+      if (timeRange === 'month') days = 30;
+      if (timeRange === 'year') days = 365;
+      
+      const metrics = await getEfficiencyMetrics(days);
+      setEfficiencyMetrics(metrics);
+
+      // Fetch latest alerts
+      const latestAlerts = await getLatestAlerts();
+      setAlerts(latestAlerts);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = async () => {
     try {
@@ -240,6 +314,21 @@ const CarbonDashboard = () => {
     return (
       <div className="flex justify-center items-center h-96">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-500"></div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <h2 className="text-2xl font-bold mb-4">Profile Not Found</h2>
+        <p className="mb-4">Please register to access your carbon dashboard.</p>
+        <button 
+          className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          onClick={() => navigate('/login')}
+        >
+          Go to Login
+        </button>
       </div>
     );
   }
@@ -514,6 +603,154 @@ const CarbonDashboard = () => {
               </tbody>
             </table>
           </div>
+        )}
+      </div>
+
+      {/* Time Range Selector */}
+      <div className="mb-6">
+        <div className="flex space-x-4">
+          <button
+            className={`px-4 py-2 rounded ${timeRange === 'week' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}
+            onClick={() => setTimeRange('week')}
+          >
+            Week
+          </button>
+          <button
+            className={`px-4 py-2 rounded ${timeRange === 'month' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}
+            onClick={() => setTimeRange('month')}
+          >
+            Month
+          </button>
+          <button
+            className={`px-4 py-2 rounded ${timeRange === 'year' ? 'bg-green-600 text-white' : 'bg-gray-200'}`}
+            onClick={() => setTimeRange('year')}
+          >
+            Year
+          </button>
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-2">Carbon Allowance</h2>
+          <p className="text-3xl font-bold text-green-600">{profile.carbon_allowance} units</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-2">Carbon Emitted</h2>
+          <p className="text-3xl font-bold text-red-600">{profile.carbon_emitted} units</p>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-xl font-semibold mb-2">Token Balance</h2>
+          <p className="text-3xl font-bold text-blue-600">{profile.tokens} tokens</p>
+        </div>
+      </div>
+
+      {/* Emissions Chart */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4">Carbon Emissions Over Time</h2>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={emissionHistory}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line 
+                type="monotone" 
+                dataKey="amount" 
+                name="Carbon Emitted"
+                stroke="#ef4444" 
+                activeDot={{ r: 8 }} 
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Token Balance Chart */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4">Token Balance History</h2>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={tokenHistory}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line
+                type="monotone"
+                dataKey="balance"
+                name="Token Balance"
+                stroke="#3b82f6"
+                activeDot={{ r: 8 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Efficiency Metrics Chart */}
+      <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 className="text-xl font-semibold mb-4">Energy Efficiency Metrics</h2>
+        <div className="h-80">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={efficiencyMetrics}
+              margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="date" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="consumption" name="Energy Consumption" fill="#3b82f6" />
+              <Bar dataKey="carbon_emitted" name="Carbon Emitted" fill="#ef4444" />
+              <Bar dataKey="efficiency_score" name="Efficiency Score" fill="#10b981" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Recent Alerts */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h2 className="text-xl font-semibold mb-4">Recent Alerts</h2>
+        {alerts.length > 0 ? (
+          <div className="space-y-4">
+            {alerts.slice(0, 5).map((alert) => (
+              <div 
+                key={alert.id} 
+                className={`p-4 rounded-lg ${
+                  alert.severity === 'high' 
+                    ? 'bg-red-100 border-l-4 border-red-500' 
+                    : alert.severity === 'medium'
+                    ? 'bg-yellow-100 border-l-4 border-yellow-500'
+                    : 'bg-blue-100 border-l-4 border-blue-500'
+                }`}
+              >
+                <div className="flex justify-between">
+                  <h3 className="font-semibold">{alert.message}</h3>
+                  <span className="text-sm text-gray-500">{formatDate(alert.timestamp / 1000000)}</span>
+                </div>
+              </div>
+            ))}
+            <button 
+              className="text-green-600 hover:text-green-800 font-semibold"
+              onClick={() => navigate('/alerts')}
+            >
+              View All Alerts
+            </button>
+          </div>
+        ) : (
+          <p className="text-gray-500">No recent alerts.</p>
         )}
       </div>
     </div>

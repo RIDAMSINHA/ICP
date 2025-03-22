@@ -100,8 +100,38 @@ export const login = async () => {
         identityProvider: identityProviderUrl,
         maxTimeToLive: twoMonthsInNanoSeconds,
         derivationOrigin: window.location.origin,
-        onSuccess: () => {
+        onSuccess: async () => {
           console.log('Login successful');
+          
+          try {
+            // After login, check if user is registered, if not - register them
+            const backendCanisterId = process.env.CANISTER_ID_GREEN_GAUGE_BACKEND || 'bkyz2-fmaaa-aaaaa-qaaaq-cai';
+            const idlFactory = await import('../../../declarations/green_gauge_backend').then(mod => mod.idlFactory);
+            const actor = await createAuthenticatedActor(backendCanisterId, idlFactory);
+            
+            try {
+              // Try to get user profile, if it fails, user needs to be registered
+              await actor.get_user_profile();
+              console.log('User already registered');
+              
+              // Check if user has a subcontract
+              const hasSubcontract = await actor.has_subcontract();
+              if (!hasSubcontract.Ok || !hasSubcontract.Ok) {
+                console.log('Deploying subcontract for user...');
+                await actor.deploy_subcontract();
+                console.log('Subcontract deployed successfully');
+              }
+            } catch (error) {
+              // If user is not registered, register them
+              console.log('User not registered, registering now...');
+              await actor.register_user();
+              console.log('User registered successfully');
+            }
+          } catch (error) {
+            console.error('Error during post-login process:', error);
+            // We don't reject here, as login was successful
+          }
+          
           resolve(true);
         },
         onError: (error) => {

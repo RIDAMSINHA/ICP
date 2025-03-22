@@ -4,22 +4,163 @@ type CarbonTrade = record {
   seller : principal;
   amount : nat64;
 };
+
 type Result = variant { Ok; Err : text };
 type Result_1 = variant { Ok : nat64; Err : text };
 type Result_2 = variant { Ok : UserProfile; Err : text };
+type Result_3 = variant { Ok : bool; Err : text };
+type Result_4 = variant { Ok : AdminUser; Err : text };
+type Result_5 = variant { Ok : vec DataPoint; Err : text };
+type Result_6 = variant { Ok : vec CarbonCredit; Err : text };
+type Result_7 = variant { Ok : vec DeviceRegistration; Err : text };
+type Result_8 = variant { Ok : vec EfficiencyMetric; Err : text };
+type Result_9 = variant { Ok : UserProfile; Err : text };
+type Result_10 = variant { Ok : vec Transaction; Err : text };
+type Result_11 = variant { Ok : bool; Err : text };
+
 type UserProfile = record {
   "principal" : principal;
-  carbon_emitted : nat64;
-  tokens : nat64;
-  carbon_allowance : nat64;
+  "carbon_allowance" : nat64;
+  "carbon_emitted" : nat64;
+  "tokens" : nat64;
+  "has_subcontract" : bool;
+  "username" : opt text;
+  "email" : opt text;
+  "full_name" : opt text;
+  "location" : opt text;
+  "join_date" : nat64;
+  "last_activity" : nat64;
 };
-service : () -> {
+
+type AdminUser = record {
+  "principal" : principal;
+  "name" : text;
+  "email" : text;
+};
+
+type Alert = record {
+  "id" : nat64;
+  "user_id" : principal;
+  "message" : text;
+  "timestamp" : nat64;
+  "severity" : text;
+  "status" : text;
+};
+
+type CarbonCredit = record {
+  "id" : nat64;
+  "seller" : principal;
+  "amount" : float64;
+  "price_per_unit" : float64;
+  "credit_type" : text;
+  "certification" : text;
+  "project_name" : text;
+  "vintage_year" : nat32;
+  "description" : text;
+  "creation_time" : nat64;
+  "is_active" : bool;
+};
+
+type DataPoint = record {
+  "id" : nat64;
+  "user_id" : principal;
+  "device_id" : text;
+  "energy_consumption" : float32;
+  "carbon_emitted" : float32;
+  "timestamp" : nat64;
+};
+
+type DeviceRegistration = record {
+  "id" : nat64;
+  "user_id" : principal;
+  "device_id" : text;
+  "device_type" : text;
+  "name" : text;
+  "model" : text;
+  "manufacturer" : text;
+  "registration_date" : nat64;
+};
+
+type EmissionHistoryPoint = record {
+  "timestamp" : nat64;
+  "amount" : float64;
+};
+
+type TokenBalancePoint = record {
+  "timestamp" : nat64;
+  "balance" : nat64;
+};
+
+type EfficiencyMetric = record {
+  "date" : text;
+  "consumption" : float32;
+  "carbon_emitted" : float32;
+  "efficiency_score" : float32;
+};
+
+type Transaction = record {
+  "id" : nat64;
+  "buyer" : principal;
+  "seller" : principal;
+  "credit_id" : nat64;
+  "amount" : float64;
+  "price_per_unit" : float64;
+  "project_name" : text;
+  "transaction_type" : text;
+  "transaction_time" : nat64;
+};
+
+type UserDevice = record {
+  "device_id" : text;
+  "device_type" : text;
+  "name" : text;
+};
+
+type UserProfileUpdateRequest = record {
+  "username" : opt text;
+  "email" : opt text;
+  "full_name" : opt text;
+  "location" : opt text;
+};
+
+service : {
   buy_carbon : (nat64, nat64) -> (Result);
   create_trade_offer : (nat64, nat64) -> (Result_1);
   debug_get_all_users : () -> (vec UserProfile) query;
+  deploy_subcontract : () -> (variant { Ok : bool; Err : text });
   get_trade_offers : () -> (vec CarbonTrade) query;
   get_user_profile : () -> (Result_2) query;
+  has_subcontract : () -> (variant { Ok : bool; Err : text }) query;
   record_emission : (nat64) -> (Result);
   register_user : () -> (Result);
   reward_tokens : (nat64) -> (Result);
+  add_admin : (AdminUser) -> (Result_1);
+  add_data_point : (text, float32, float32) -> (variant { Ok : nat64; Err : text });
+  add_device : (DeviceRegistration) -> (Result_2);
+  check_device : (text) -> (Result);
+  debug_get_all_transactions : () -> (vec Transaction) query;
+  debug_get_users : () -> (vec record { "principal" : principal; "profile" : UserProfile }) query;
+  delete_device : (text) -> (Result_1);
+  filter_alerts : (text) -> (variant { Ok : vec Alert; Err : text }) query;
+  generate_alerts : () -> (nat64);
+  get_admin_by_principal : (principal) -> (Result_4) query;
+  get_all_data : () -> (variant { Ok : vec DataPoint; Err : text }) query;
+  get_carbon_credits : () -> (Result_6) query;
+  get_device_list : () -> (Result_7) query;
+  get_efficiency_metrics : (float64) -> (variant { Ok : vec EfficiencyMetric; Err : text }) query;
+  get_emission_history : (nat64, nat64) -> (variant { Ok : vec EmissionHistoryPoint; Err : text }) query;
+  get_latest_alerts : () -> (variant { Ok : vec Alert; Err : text }) query;
+  get_token_balance_history : (nat64, nat64) -> (variant { Ok : vec TokenBalancePoint; Err : text }) query;
+  get_user_data_by_device : (text) -> (Result_5) query;
+  get_user_devices : () -> (Result_7) query;
+  get_user_transactions : () -> (Result_10) query;
+  has_admin : () -> (bool) query;
+  is_admin : () -> (bool) query;
+  is_authenticated : () -> (bool) query;
+  list_carbon_credit : (float64, float64, text, text, text, nat32, text) -> (Result_1);
+  purchase_carbon_credit : (nat64, float64) -> (Result_1);
+  remove_admin : (principal) -> (Result_1);
+  remove_alert : (nat64) -> (variant { Ok : nat64; Err : text });
+  update_alert_status : (nat64, text) -> (variant { Ok : nat64; Err : text });
+  update_user_profile : (UserProfileUpdateRequest) -> (variant { Ok : nat64; Err : text });
 }
